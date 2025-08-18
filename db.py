@@ -2,6 +2,14 @@ import os
 
 from dotenv import load_dotenv
 from sqlalchemy import create_engine
+from sqlalchemy.orm import DeclarativeBase
+
+
+# The parent class for all database model classes.
+# This holds settings that are common to all the tables.
+class Model(DeclarativeBase):
+    pass
+
 
 load_dotenv()
 
