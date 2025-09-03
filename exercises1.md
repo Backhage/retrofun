@@ -70,3 +70,26 @@ class Product(Model):
      Product(36, "CoBra"), Product(37, "Lynx"), Product(38, "Coleco Adam"),...]
     """
     ```
+
+3. Use `like` with `or_` to select the CPUs, then `where` to filter out those
+   built before 1990, and finally `order_by` to sort in alphabetical order.
+
+    ```python
+    # Imports similar to before but add...
+    from sqlalchemy import or_
+
+    q = (select(Product)
+         .where(or_(Product.cpu.like("%Z80%"), Product.cpu.like("%6502%")))
+         .where(Product.year < 1990)
+         .order_by(Product.name))
+
+    session.scalars(q).all())
+
+    """
+    [Product(84, "ABC 80"), Product(1, "Acorn Atom"), Product(55, "Alpha"),
+     Product(16, "Apple II"), Product(20, "Apple II Plus"), Product(17, "Apple IIe"),
+     Product(85, "Aquarius"), Product(26, "Atari 1200XL"), Product(30, "Atari 130XE"),
+     Product(24, "Atari 400"), Product(27, "Atari 600XL"), Product(29, "Atari 65XE"),
+     Product(25, "Atari 800"),...]
+    """
+    ```
