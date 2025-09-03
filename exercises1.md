@@ -7,7 +7,7 @@ Solutions are my own and there might be better ways to solve it them.
 Start a Python session and write queries that return the following information:
 
 1. The first three products in alphabetical order built in the year 1983.
-2. Products that use the "Z80" CPU or any of its cloes. Assume that all products
+2. Products that use the "Z80" CPU or any of its clones. Assume that all products
 based on this CPU have the word "Z80" in the `cpu` column.
 3. Products that use either the "Z80" or the "6502" CPUs, or any of its clones,
 built before 1990, sorted alphabetically by name.
@@ -39,18 +39,34 @@ class Product(Model):
 
 1. Order the products by `name` then take the top 3 where `year` equals 1983.
 
-```python
-from sqlalchemy import select
+    ```python
+    from sqlalchemy import select
 
-from db import Session
-from models import Product
+    from db import Session
+    from models import Product
 
-session = Session()
-q = select(Product).order_by(Product.name).where(Product.year == 1983).limit(3)
-session.scalars(q).all()
+    session = Session()
+    q = select(Product).order_by(Product.name).where(Product.year == 1983).limit(3)
+    session.scalars(q).all()
 
-"""
-[Product(17, "Apple IIe"), Product(85, "Aquarius"), Product(26, "Atari 1200XL")]
-"""
+    """
+    [Product(17, "Apple IIe"), Product(85, "Aquarius"), Product(26, "Atari 1200XL")]
+    """
 
-```
+    ```
+
+2. Use the `like` function to get products that include "Z80" in the `cpu` column.
+
+    ```python
+    # Imports and session like in exercise 1
+
+    q = select(Product).where(Product.cpu.like("%Z80%"))
+    session.scalars(q).all()
+
+    """
+    [Product(7, "CPC 464"), Product(8, "CPC 664"), Product(9, "CPC 6128"),
+     Product(10, "464 Plus"), Product(11, "6128 Plus"), Product(12, "PCW"),
+     Product(23, "CT-80"), Product(34, "Bally Brain"), Product(35, "Bally Astrocade"),
+     Product(36, "CoBra"), Product(37, "Lynx"), Product(38, "Coleco Adam"),...]
+    """
+    ```
