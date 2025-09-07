@@ -83,7 +83,7 @@ class Product(Model):
          .where(Product.year < 1990)
          .order_by(Product.name))
 
-    session.scalars(q).all())
+    session.scalars(q).all()
 
     """
     [Product(84, "ABC 80"), Product(1, "Acorn Atom"), Product(55, "Alpha"),
@@ -93,3 +93,23 @@ class Product(Model):
      Product(25, "Atari 800"),...]
     """
     ```
+
+4. Select the manufacturer column where year is greater than or equal 1980
+   and less than 1990. Ensure distinct.
+
+  ```python
+  # Imports like before
+
+  q = (select(Product.manufacturer)
+       .where(Product.year >= 1980)
+       .where(Product.year < 1990)
+       .distinct())
+
+  session.scalars(q).all()
+
+  """
+  ['Acorn Computers Ltd', 'Commodore', 'Data Applications International', 'EACA',
+   'Radio Shack', 'Philips', 'Pravetz', 'Sinclair Research', 'NEC Home Electronics',
+   'NEC', 'PEL Varaždin', ...]
+  """
+  ```
