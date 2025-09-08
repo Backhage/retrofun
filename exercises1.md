@@ -97,19 +97,38 @@ class Product(Model):
 4. Select the manufacturer column where year is greater than or equal 1980
    and less than 1990. Ensure distinct.
 
-  ```python
-  # Imports like before
+    ```python
+    # Imports like before
 
-  q = (select(Product.manufacturer)
-       .where(Product.year >= 1980)
-       .where(Product.year < 1990)
-       .distinct())
+    q = (select(Product.manufacturer)
+         .where(Product.year >= 1980)
+         .where(Product.year < 1990)
+         .distinct())
 
-  session.scalars(q).all()
+    session.scalars(q).all()
 
-  """
-  ['Acorn Computers Ltd', 'Commodore', 'Data Applications International', 'EACA',
-   'Radio Shack', 'Philips', 'Pravetz', 'Sinclair Research', 'NEC Home Electronics',
-   'NEC', 'PEL Varaždin', ...]
-  """
-  ```
+    """
+    ['Acorn Computers Ltd', 'Commodore', 'Data Applications International', 'EACA',
+     'Radio Shack', 'Philips', 'Pravetz', 'Sinclair Research', 'NEC Home Electronics',
+     'NEC', 'PEL Varaždin', ...]
+    """
+    ```
+
+5. Select the manufacturer column and use `like` to get those that starts with
+   `T` and order_by to get them in alphabetical order. Make sure they are distinct.
+
+    ```python
+    # Imports like before
+
+    q = (select(Product.manufacturer)
+         .where(Product.manufacturer.like('T%'))
+         .order_by(Product.manufacturer)
+         .distinct())
+
+    session.scalars(q).all()
+
+    """
+    ['Tangerine Computer Systems', 'Technosys', 'Tesla', 'Texas Instruments',
+     'Thomson', 'Timex Sinclair', 'Tomy', 'Tsinghua University']
+    """
+    ```
