@@ -150,3 +150,22 @@ class Product(Model):
     (1981, 1984, 4)
     """
     ```
+
+7. Use `group_by` to group products by year and count the size of each group and
+   order by the group size in descending order.
+
+    ```python
+    # Imports like before, including func
+
+    q = (select(Product.year, func.count())
+         .group_by(Product.year)
+         .order_by(func.count().desc()))
+
+    session.execute(q).all()
+
+    """
+    [(1983, 24), (1984, 21), (1985, 21), (1982, 17), (1986, 11), (1980, 10),
+     (1979, 9), (1977, 7), (1981, 6), (1987, 6), (1990, 5), (1989, 4), (1978, 2),
+     (1988, 2), (1969, 1), (1991, 1), (1992, 1), (1995, 1)]
+    """
+    ```
