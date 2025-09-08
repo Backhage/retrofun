@@ -132,3 +132,21 @@ class Product(Model):
      'Thomson', 'Timex Sinclair', 'Tomy', 'Tsinghua University']
     """
     ```
+
+6. Use `func.min`, `func.max`, `func.count` to get min, max, and count of the
+   products.
+
+    ```python
+    # Imports like before, but also import func
+    from sqlalchemy import func
+
+    q = (select(func.min(Product.year), func.max(Product.year), func.count())
+         .where(Product.country == 'Croatia'))
+
+    r = session.execute(q)
+    r.first()
+
+    """
+    (1981, 1984, 4)
+    """
+    ```
