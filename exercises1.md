@@ -169,3 +169,18 @@ class Product(Model):
      (1988, 2), (1969, 1), (1991, 1), (1992, 1), (1995, 1)]
     """
     ```
+
+8. Get `distinct` manufacturers where the product country is USA and count them.
+
+    ```python
+    # Import like before, including func
+
+    q = (select(func.count(Product.manufacturer.distinct()))
+         .where(Product.country == "USA"))
+
+    session.scalar(q)
+
+    """
+    17
+    """
+    ```
