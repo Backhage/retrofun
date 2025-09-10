@@ -2,7 +2,7 @@
 import csv
 
 from db import Model, Session, engine
-from models import Product
+from models import Manufacturer, Product
 
 
 def main():
@@ -13,10 +13,20 @@ def main():
         with session.begin():
             with open("products.csv") as f:
                 reader = csv.DictReader(f)
+                all_manufacturers = {}
+
                 for row in reader:
                     row["year"] = int(row["year"])
-                    product = Product(**row)
-                    session.add(product)
+
+                    manufacturer = row.pop("manufacturer")
+                    p = Product(**row)
+
+                    if manufacturer not in all_manufacturers:
+                        m = Manufacturer(name=manufacturer)
+                        session.add(m)
+                        all_manufacturers[manufacturer] = m
+
+                    all_manufacturers[manufacturer].products.append(p)
 
 
 if __name__ == "__main__":
