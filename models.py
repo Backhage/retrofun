@@ -41,7 +41,14 @@ class Manufacturer(Model):
     # result in any information added to the database. It only allows SQLAlchemy
     # to query the database for products for a given manufacturer when the `products`
     # field is accessed.
-    products: Mapped[list["Product"]] = relationship(back_populates="manufacturer")
+    #
+    # Setting the cascade option to `all, delete-orphan` will set the behavior to
+    # delete all products related to a manufacturer if a manufacturer is deleted.
+    # The default is not to delete orphans which will cause an integrity error
+    # throw an exception if attempted.
+    products: Mapped[list["Product"]] = relationship(
+        back_populates="manufacturer", cascade="all, delete-orphan"
+    )
 
     def __repr__(self):
         return f'Manufacturer({self.id}, "{self.name}")'
