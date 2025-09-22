@@ -61,7 +61,7 @@ class Manufacturer(Model):
 
 1. Select `Product` and join on `Product.manufacturer`. Use `_or` to match against
    both IBM and Texas Instruments as manufacturer name.
-  
+
     ```python
     from sqlalchemy import select, _or
     from db import Session
@@ -79,3 +79,48 @@ class Manufacturer(Model):
      Product(132, "TI-99/4"), Product(133, "TI-99/4A")]
     """
     ```
+
+2. Country is a column in the product table so `select` Manufacturer joined with
+   products where the country field of the product is Brazil.
+
+   ```python
+   from sqlalchemy import select
+   from db import Session
+   from models import Product, Manufacturer
+
+   session = Session()
+   q = (select(Manufacturer)
+        .where(Product.country == "Brazil")
+        .join(Manufacturer.products))
+
+   session.scalars(q).all()
+
+   """
+   [Manufacturer(32, "Gradiente"),
+    Manufacturer(46, "Comércio de Componentes Eletrônicos"),
+    Manufacturer(47, "Microdigital Eletronica"),
+    Manufacturer(59, "Prológica")]
+   """
+   ```
+
+3. Here `like` must be used to get the manufacturer(s) which names include the
+   word Research. Wildcard character '%' is used to get any manufacturer that
+   has the word Research no matter where in the name it exist.
+
+   ```python
+   from sqlalchemy import select
+   from db import Session
+   from models import Product, Manufacturer
+
+   session = Session()
+   q = (select(Product)
+        .where(Manufacturer.name.like("%Research%"))
+        .join(Product.manufacturer))
+
+   session.scalars(q).all()
+
+   """
+   [Product(125, "ZX80"), Product(126, "ZX81"), Product(127, "ZX Spectrum"),
+    Product(128, "Sinclair QL")]
+   """
+   ```
