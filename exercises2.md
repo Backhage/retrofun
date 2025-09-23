@@ -124,3 +124,30 @@ class Manufacturer(Model):
     Product(128, "Sinclair QL")]
    """
    ```
+
+4. Since multiple products from the same manufacturer may be based on the Z80
+   CPU the same manufacturer may appear many times in the result unless `distinct`
+   is used to ensure each manufacturer is returned only once.
+
+   ```python
+   from sqlalchemy import select, distinct
+   from db import Session
+   from models import Product, Manufacturer
+
+   session = Session()
+   q = (select(Manufacturer)
+        .distinct()
+        .where(Product.cpu.like("%Z80%"))
+        .join(Manufacturer.products))
+
+   session.scalars(q).all()
+
+   """
+   [Manufacturer(2, "Amstrad"), Manufacturer(7, "Aster Computers"),
+    Manufacturer(10, "Bally Consumer Products"), Manufacturer(11, "Brasov Computer"),
+    Manufacturer(12, "Camputers"), Manufacturer(13, "Coleco"),
+    Manufacturer(14, "Commodore"), Manufacturer(17, "Vtech"),
+    ...
+    Manufacturer(75, "West Computer AS"), Manufacturer(76, "GEM")]
+   """
+   ```
