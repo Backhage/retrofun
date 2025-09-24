@@ -151,3 +151,28 @@ class Manufacturer(Model):
     Manufacturer(75, "West Computer AS"), Manufacturer(76, "GEM")]
    """
    ```
+
+5. To select the products that are _not_ based on a specific CPU it can be
+   negated by using the `not_` functionality. Otherwise the query is very
+   similar to the one in task 4 above.
+
+   ```python
+   from sqlalchemy import select, distinct, not_
+   from db import Session
+   from models import Product, Manufacturer
+
+   session = Session()
+   q = (select(Manufacturer)
+        .distinct()
+        .where(not_(Product.cpu.like("%6502%"))) # Note the `not_`
+        .join(Manufacturer.products))
+
+   session.scalars(q).all()
+
+   """
+    [Manufacturer(1, "Acorn Computers Ltd"), Manufacturer(2, "Amstrad"),
+     Manufacturer(4, "APF Electronics, Inc."), Manufacturer(5, "Apple Computer"),
+     ...
+     Manufacturer(74, "Videoton"), Manufacturer(76, "GEM")]
+   """
+   ```
