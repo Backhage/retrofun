@@ -176,3 +176,31 @@ class Manufacturer(Model):
      Manufacturer(74, "Videoton"), Manufacturer(76, "GEM")]
    """
    ```
+
+6. Select Manufacturer and the minimum year of their respective product using
+   the `func.min` function. To get each manufacturer just once, use `group_by`
+   and to get the result sorted by the year of the product, use `order_by` with
+   product year as the argument.
+
+   ```python
+   from sqlalchemy import select, func
+   from db import Session
+   from models import Product, Manufacturer
+
+   session = Session()
+   q = (select(Manufacturer, func.min(Product.year))
+        .group_by(Manufacturer)
+        .order_by(Product.year)
+        .join(Manufacturer.products))
+
+   session.execute(q).all() # Use execute since two values are wanted
+
+   """
+   [(Manufacturer(33, "Honeywell"), 1969), (Manufacturer(5, "Apple Computer"), 1977),
+    (Manufacturer(10, "Bally Consumer Products"), 1977),
+    (Manufacturer(14, "Commodore"), 1977)
+    ...
+    (Manufacturer(68, "Štátny majetok Závadka š.p."), 1989),
+    (Manufacturer(37, "Intercompex"), 1990), (Manufacturer(22, "Dubna"), 1991)]
+   """
+   ```
