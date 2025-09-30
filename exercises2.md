@@ -204,3 +204,29 @@ class Manufacturer(Model):
     (Manufacturer(37, "Intercompex"), 1990), (Manufacturer(22, "Dubna"), 1991)]
    """
    ```
+
+7. Select and group Manfacturers, then filter out the ones that have a product
+   count between 3 and 5.
+
+   ```python
+   from sqlalchemy import select, func
+   from db import Session
+   from models import Product, Manufacturer
+
+   session = Session()
+   q = (select(Manufacturer)
+        .group_by(Manufacturer)
+        .having(func.count(Manufacturer.products) >= 3,
+                func.count(Manufacturer.products) <= 5)
+        .join(Manufacturer.products))
+
+   session.scalars(q).all()
+
+   """
+   [Manufacturer(9, "Atari Corporation"), Manufacturer(20, "Didaktik"),
+    Manufacturer(44, "Memotech"), Manufacturer(54, "Tangerine Computer Systems"),
+    Manufacturer(56, "Philips"), Manufacturer(57, "Pravetz"),
+    Manufacturer(60, "VEB Robotron"), Manufacturer(62, "Sharp"),
+    Manufacturer(63, "Sinclair Research")]
+   """
+   ```
