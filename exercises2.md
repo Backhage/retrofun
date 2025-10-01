@@ -230,3 +230,28 @@ class Manufacturer(Model):
     Manufacturer(63, "Sinclair Research")]
    """
    ```
+
+8. Select and group Manfacturers, then filter on products where the difference
+   between min and max year is greater than 5.
+
+   ```python
+   from sqlalchemy import select, func
+   from db import Session
+   from models import Product, Manufacturer
+
+   session = Session()
+   q = (select(Manufacturer)
+        .group_by(Manufacturer)
+        .having(func.max(Product.year) - func.min(Product.year) > 5)
+        .join(Manufacturer.products))
+
+   session.scalars(q).all()
+
+   """
+   [Manufacturer(1, "Acorn Computers Ltd"), Manufacturer(2, "Amstrad"),
+    Manufacturer(5, "Apple Computer"), Manufacturer(8, "Atari, Inc."),
+    Manufacturer(9, "Atari Corporation"), Manufacturer(14, "Commodore"),
+    Manufacturer(30, "Fujitsu"), Manufacturer(34, "IBM"),
+    Manufacturer(52, "Radio Shack"), Manufacturer(62, "Sharp")]
+   """
+   ```
