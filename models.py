@@ -1,9 +1,30 @@
 from typing import Optional
 
-from sqlalchemy import ForeignKey, String
+from sqlalchemy import Column, ForeignKey, String, Table
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from db import Model
+
+"""This is a join table used to describe a many-to-many relationship between
+products and countries. The reason being that one product may have been developed
+in multiple countries, and multiple products have been developed in the same
+country.
+
+Since this model is completely managed by SQLAlchemy the more simple construct
+using `Table` and `Column` classes can be used instead of deriving a new class
+from the `DeclarativeBase`.
+
+This table does not have an `id` primary key, instead the two foreign keys are
+marked as primary key. When multiple columns are designated as primary keys
+SQLAlchemy creates a *composite* primary key (the primary key is the combination
+of the two and it is that combination that must be unique).
+"""
+ProductCountry = Table(
+    "products_countries",
+    Model.metadata,
+    Column("product_id", ForeignKey("products.id"), primary_key=True, nullable=False),
+    Column("country_id", ForeignKey("countries.id"), primary_key=True, nullable=False),
+)
 
 
 class Product(Model):
@@ -25,7 +46,12 @@ class Product(Model):
     # in the code.
     manufacturer: Mapped["Manufacturer"] = relationship(back_populates="products")
     year: Mapped[int] = mapped_column(index=True)
-    country: Mapped[Optional[str]] = mapped_column(String(32))
+
+    # The `secondary` argument tells SQLAlchemy that this relationship is supported
+    # by a *secondary* table (the join table).
+    countries: Mapped[list["Country"]] = relationship(
+        secondary=ProductCountry, back_populates="products"
+    )
     cpu: Mapped[Optional[str]] = mapped_column(String(32))
 
     def __repr__(self):
@@ -52,3 +78,17 @@ class Manufacturer(Model):
 
     def __repr__(self):
         return f'Manufacturer({self.id}, "{self.name}")'
+
+
+class Country(Model):
+    __tablename__ = "countries"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str] = mapped_column(String(32), index=True, unique=True)
+
+    products: Mapped[list["Product"]] = relationship(
+        secondary=ProductCountry, back_populates="countries"
+    )
+
+    def __repr__(self):
+        return f'Country({self.id}, "{self.name}")'
