@@ -94,3 +94,30 @@ class Country(Model):
     Product(6, "A7000")]
    """
    ```
+
+2. Use the `not_` functionality to invert the query from 1. Since there is an
+   entry for each product/country combination in the join table any products
+   that were made jointly with another country should be included in the
+   results.
+
+   ```python
+   from sqlalchemy import select, not_
+   from db import Session
+   from models import Product, Country
+
+   session = Session()
+   q = (select(Product)
+        .join(Product.countries)
+        .where(not_(Country.name.in_(["UK", "USA"])))
+        .distinct())
+
+   session.scalars(q).all()
+
+   """
+   [Product(55, "Alpha"), Product(56, "Beta"), Product(57, "Gama"),
+    Product(134, "PMD 85"), Product(135, "MAŤO"),
+    Product(50, "DAI Personal Computer"),
+    ...
+    Product(148, "West PC-800"), Product(84, "ABC 80"), Product(104, "Euro PC")]
+   """
+   ```
