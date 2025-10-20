@@ -121,3 +121,30 @@ class Country(Model):
     Product(148, "West PC-800"), Product(84, "ABC 80"), Product(104, "Euro PC")]
    """
    ```
+
+3. Join country with products and selects those products that have CPUs that
+   have Z80 in its name. Make sure only distinct countries are listed.
+
+   ```python
+   from sqlalchemy import select
+   from db import Session
+   from models import Country, Product
+
+   session = Session()
+
+   q = (select(Country)
+        .join(Country.products)
+        .where(Product.cpu.like("%Z80%"))
+        .distinct())
+
+   session.scalars(q).all()
+
+   """
+   [Country(8, "Czechoslovakia"), Country(7, "Belgium"), Country(5, "Romania"),
+    Country(22, "Portugal"), Country(16, "Australia"), Country(4, "Netherlands"),
+    Country(3, "USA"), Country(12, "Brazil"), Country(24, "Hungary"),
+    Country(21, "East Germany"), Country(1, "UK"), Country(23, "Poland"),
+    Country(9, "USSR"), Country(11, "Japan"), Country(6, "Hong Kong"),
+    Country(25, "Norway"), Country(14, "Sweden")]
+   """
+   ```
