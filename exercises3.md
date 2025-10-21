@@ -148,3 +148,26 @@ class Country(Model):
     Country(25, "Norway"), Country(14, "Sweden")]
    """
    ```
+
+4. Again join country with products and select those products where year is
+   in the range 1970 to 1979. Group by country and order by country name.
+
+   ```python
+   from sqlalchemy import select, and_
+   from db import Session
+   from models import Country, Product
+
+   session = Session()
+
+   q = (select(Country)
+        .join(Country.products)
+        .where(and_(Product.year >= 1970, Product.year <= 1979))
+        .group_by(Country)
+        .order_by(Country.name))
+
+   session.scalars(q).all()
+
+   """
+   [Country(11, "Japan"), Country(14, "Sweden"), Country(3, "USA")]
+   """
+   ```
