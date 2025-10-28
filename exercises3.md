@@ -171,3 +171,28 @@ class Country(Model):
    [Country(11, "Japan"), Country(14, "Sweden"), Country(3, "USA")]
    """
    ```
+
+5. Select Country, use the count function to count the number of products for
+   each country and order by that count. Also order by Country name to get the
+   alphabetical ordering right for countries where the product count is equal.
+
+   ```python
+   from sqlalchemy import select, func
+   from db import Session
+   from models import Country, Product
+
+   session = Session()
+   
+   q = (select(Country)
+        .join(Country.products)
+        .group_by(Country)
+        .order_by(func.count(Product.id).desc(), Country.name)
+        .limit(5))
+
+   sessions.scalars(q).all()
+
+   """
+   [(Country(3, "USA"),), (Country(1, "UK"),), (Country(11, "Japan"),),
+   (Country(6, "Hong Kong"),), (Country(22, "Portugal"),)]
+   """
+   ```
