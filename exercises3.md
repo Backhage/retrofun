@@ -196,3 +196,32 @@ class Country(Model):
    (Country(6, "Hong Kong"),), (Country(22, "Portugal"),)]
    """
    ```
+
+6. Here all the tables must be joined to get the full chain from Manufacturer
+   to Country.
+
+   ```python
+   from sqlalchemy import select, func
+   from db import Session
+   from models import Country, Manufacturer, Product
+
+   session = Session()
+
+   product_count = func.count(Product.id.distinct()).label(None)
+
+   q = (select(Manufacturer)
+        .join(Manufacturer.products)
+        .join(Product.countries)
+        .where(Country.name.in_(["UK", "USA"]))
+        .group_by(Manufacturer)
+        .having(product_count > 3))
+
+   session.scalars(q).all()
+
+   """
+   [Manufacturer(1, "Acorn Computers Ltd"), Manufacturer(2, "Amstrad"),
+    Manufacturer(5, "Apple Computer"), Manufacturer(8, "Atari, Inc."),
+    Manufacturer(14, "Commodore"), Manufacturer(52, "Radio Shack"),
+    Manufacturer(63, "Sinclair Research"), Manufacturer(70, "Timex Sinclair")]
+   """
+   ```
