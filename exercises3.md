@@ -225,3 +225,29 @@ class Country(Model):
     Manufacturer(63, "Sinclair Research"), Manufacturer(70, "Timex Sinclair")]
    """
    ```
+
+7. Use a similar count functionality as in 6, but count the number of countries
+   instead of the number of products. Group by Manufacturer and get those having
+   a country count > 1.
+
+   ```python
+   from sqlalchemy import select, func
+   from db import Session
+   from models import Country, Manufacturer, Product
+
+   session = Session()
+
+   country_count = func.count(Country.id.distinct()).label(None)
+
+   q = (select(Manufacturer)
+        .join(Manufacturer.products)
+        .join(Product.countries)
+        .group_by(Manufacturer)
+        .having(country_count > 1))
+
+   session.scalars(q).all()
+
+   """
+   [Manufacturer(70, "Timex Sinclair")]
+   """
+   ```
