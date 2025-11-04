@@ -251,3 +251,28 @@ class Country(Model):
    [Manufacturer(70, "Timex Sinclair")]
    """
    ```
+
+8. Join products and country and filter out the products that have both UK
+   and USA in their country names.
+
+   ```python
+   from sqlalchemy import select, func
+   from db import Session
+   from models import Country, Product
+
+   session = Session()
+
+   q = (select(Product)
+        .join(Product.countries)
+        .where(Country.name.in_(['UK', 'USA']))
+        .group_by(Product)
+        .having(func.count(Country.id) > 1))
+
+
+   session.scalars(q).all()
+
+   """
+   [Product(138, "Timex Sinclair 1000"), Product(139, "Timex Sinclair 1500"),
+   Product(142, "Timex Computer 2068"), Product(140, "Timex Sinclair 2048")]
+   """
+   ```
