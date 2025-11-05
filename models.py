@@ -1,7 +1,9 @@
+from datetime import datetime, timezone
 from typing import Optional
+from uuid import UUID, uuid4
 
 from sqlalchemy import Column, ForeignKey, String, Table
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.orm import Mapped, WriteOnlyMapped, mapped_column, relationship
 
 from db import Model
 
@@ -92,3 +94,31 @@ class Country(Model):
 
     def __repr__(self):
         return f'Country({self.id}, "{self.name}")'
+
+
+class Order(Model):
+    __tablename__ = "orders"
+
+    id: Mapped[UUID] = mapped_column(default=uuid4, primary_key=True)
+    timestamp: Mapped[datetime] = mapped_column(
+        default=lambda: datetime.now(timezone.utc), index=True
+    )
+    customer_id: Mapped[UUID] = mapped_column(ForeignKey("customers.id"), index=True)
+    customer: Mapped["Customer"] = relationship(back_populates="orders")
+
+    def __repr__(self):
+        return f"Order({self.id.hex})"
+
+
+class Customer(Model):
+    __tablename__ = "customers"
+
+    id: Mapped[UUID] = mapped_column(default=uuid4, primary_key=True)
+    name: Mapped[str] = mapped_column(String(64), index=True, unique=True)
+    address: Mapped[str | None] = mapped_column(String(128))
+    phone: Mapped[str | None] = mapped_column(String(32))
+
+    orders: WriteOnlyMapped["Order"] = relationship(back_populates="customers")
+
+    def __repr__(self):
+        return f'Customer({self.id.hex}), "{self.name}"'
