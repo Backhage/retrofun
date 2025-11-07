@@ -56,6 +56,13 @@ class Product(Model):
     )
     cpu: Mapped[Optional[str]] = mapped_column(String(32))
 
+    # The relationship between orders and products is, as products and countries, a
+    # many-to-many relationship. But since the orderitems table has extra columns
+    # that needs to be accessed we cannot use the same pattern as for countries where
+    # the join table is defined in the `secondary` argument in the relationship.
+    # Instead the order_items table needs to be defined directly.
+    order_items: WriteOnlyMapped["OrderItem"] = relationship(back_populates="products")
+
     def __repr__(self):
         return f'Product({self.id}, "{self.name}")'
 
@@ -106,6 +113,8 @@ class Order(Model):
     customer_id: Mapped[UUID] = mapped_column(ForeignKey("customers.id"), index=True)
     customer: Mapped["Customer"] = relationship(back_populates="orders")
 
+    order_items: Mapped[list["OrderItem"]] = relationship(back_populates="orders")
+
     def __repr__(self):
         return f"Order({self.id.hex})"
 
@@ -122,3 +131,24 @@ class Customer(Model):
 
     def __repr__(self):
         return f'Customer({self.id.hex}), "{self.name}"'
+
+
+""" This is a join table for the many-to-many relationship between orders and
+products. It differs from the join table defined earlier for the products to
+countries table in that this has additional columns for extra data that is part
+of the join table itself. This alternative method to define a many-to-many
+relationship is called the Association Object Pattern.
+"""
+
+
+class OrderItem(Model):
+    __tablename__ = "orders_items"
+
+    product_id: Mapped[int] = mapped_column(ForeignKey("products.id"), primary_key=True)
+    order_id: Mapped[UUID] = mapped_column(ForeignKey("orders.id"), primary_key=True)
+
+    product: Mapped["Product"] = relationship(back_populates="order_items")
+    order: Mapped["Order"] = relationship(back_populates="order_items")
+
+    unit_price: Mapped[float]
+    quantity: Mapped[int]
