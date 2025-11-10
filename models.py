@@ -61,7 +61,7 @@ class Product(Model):
     # that needs to be accessed we cannot use the same pattern as for countries where
     # the join table is defined in the `secondary` argument in the relationship.
     # Instead the order_items table needs to be defined directly.
-    order_items: WriteOnlyMapped["OrderItem"] = relationship(back_populates="products")
+    order_items: WriteOnlyMapped["OrderItem"] = relationship(back_populates="product")
 
     def __repr__(self):
         return f'Product({self.id}, "{self.name}")'
@@ -113,7 +113,7 @@ class Order(Model):
     customer_id: Mapped[UUID] = mapped_column(ForeignKey("customers.id"), index=True)
     customer: Mapped["Customer"] = relationship(back_populates="orders")
 
-    order_items: Mapped[list["OrderItem"]] = relationship(back_populates="orders")
+    order_items: Mapped[list["OrderItem"]] = relationship(back_populates="order")
 
     def __repr__(self):
         return f"Order({self.id.hex})"
@@ -127,7 +127,7 @@ class Customer(Model):
     address: Mapped[str | None] = mapped_column(String(128))
     phone: Mapped[str | None] = mapped_column(String(32))
 
-    orders: WriteOnlyMapped["Order"] = relationship(back_populates="customers")
+    orders: WriteOnlyMapped["Order"] = relationship(back_populates="customer")
 
     def __repr__(self):
         return f'Customer({self.id.hex}), "{self.name}"'
