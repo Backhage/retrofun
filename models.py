@@ -2,7 +2,7 @@ from datetime import datetime, timezone
 from typing import Optional
 from uuid import UUID, uuid4
 
-from sqlalchemy import Column, ForeignKey, String, Table
+from sqlalchemy import Column, ForeignKey, String, Table, Text
 from sqlalchemy.orm import Mapped, WriteOnlyMapped, mapped_column, relationship
 
 from db import Model
@@ -62,6 +62,11 @@ class Product(Model):
     # the join table is defined in the `secondary` argument in the relationship.
     # Instead the order_items table needs to be defined directly.
     order_items: WriteOnlyMapped["OrderItem"] = relationship(back_populates="product")
+
+    # The relationship between reviews and products are set up in the same way as the
+    # relationship between orders and products. The ProductReview table is a join table
+    # and the relation is set up according to the association object pattern.
+    reviews: WriteOnlyMapped["ProductReview"] = relationship(back_populates="product")
 
     def __repr__(self):
         return f'Product({self.id}, "{self.name}")'
@@ -128,6 +133,9 @@ class Customer(Model):
     phone: Mapped[str | None] = mapped_column(String(32))
 
     orders: WriteOnlyMapped["Order"] = relationship(back_populates="customer")
+    product_reviews: WriteOnlyMapped["ProductReview"] = relationship(
+        back_populates="customer"
+    )
 
     def __repr__(self):
         return f'Customer({self.id.hex}), "{self.name}"'
@@ -152,3 +160,20 @@ class OrderItem(Model):
 
     unit_price: Mapped[float]
     quantity: Mapped[int]
+
+
+class ProductReview(Model):
+    __tablename__ = "product_reviews"
+
+    product_id: Mapped[int] = mapped_column(ForeignKey("products.id"), primary_key=True)
+    customer_id: Mapped[UUID] = mapped_column(
+        ForeignKey("customers.id"), primary_key=True
+    )
+    timestamp: Mapped[datetime] = mapped_column(
+        default=lambda: datetime.now(timezone.utc), index=True
+    )
+    rating: Mapped[int]
+    comment: Mapped[str | None] = mapped_column(Text)
+
+    product: Mapped["Product"] = relationship(back_populates="reviews")
+    customer: Mapped["Customer"] = relationship(back_populates="product_reviews")
