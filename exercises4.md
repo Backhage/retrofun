@@ -180,3 +180,27 @@ class ProductReview(Model):
     (Order(aa772b99e41a4ef5af9583ea81c192a7), 300.19)]
    """
    ```
+
+2. Here we need to join Order, OrderItem, and Product and filter on the product
+   name.
+
+   ```python
+   from sqlalchemy import select
+   from db import Session
+   from models import Order, OrderItem, Product
+
+   session = Session()
+
+   q = (select(Order)
+        .join(Order.order_items)
+        .join(OrderItem.product)
+        .where(Product.name == "ZX81"))
+
+   session.scalars(q).all()
+
+   """
+   [Order(0f6c3d09b21a4119b521c9232447f58c),
+   Order(18ba8557d5054438b9b5912ee783960c),
+   Order(61090d1d9f9e4d5f858d70da5031e6fb)]
+   """
+   ```
