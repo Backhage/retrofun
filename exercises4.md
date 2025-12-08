@@ -204,3 +204,30 @@ class ProductReview(Model):
    Order(61090d1d9f9e4d5f858d70da5031e6fb)]
    """
    ```
+
+3. Quite straight forward, but many joins.
+
+   ```python
+   from sqlalchemy import select
+   from db import Session
+   from models import Order, OrderItem, Product, Manufacturer
+
+   session = Session()
+ 
+   q = (select(Order)
+        .join(Order.order_items)
+        .join(OrderItem.product)
+        .join(Product.manufacturer)
+        .where(Manufacturer.name == "Amstrad")
+        .distinct()
+
+   session.scalars(q).all()
+
+   """
+   [Order(0a266278e4ba405db5a96d8d6848ac29), Order(3cf66503170f462cad94634731807017),
+   Order(549f670fa3d64375aba19554a114b45c), Order(5624f45b9d134bb7933b71db4b7d9f79),
+   ...
+   Order(7b46a2824e1c4a45b8d015ab5355a05b), Order(d5cf91faaf3e45219d2a426264d309af),
+   Order(e4042351adbd4bb4a93c0f0a66ca56a9), Order(edae448a6299469289b573d07367cc1b)]
+   """
+   ```
