@@ -231,3 +231,32 @@ class ProductReview(Model):
    Order(e4042351adbd4bb4a93c0f0a66ca56a9), Order(edae448a6299469289b573d07367cc1b)]
    """
    ```
+
+4. Orders made on the 25th of December 2022 with two or more line items.
+   What is a "line item"? I think what is requested is that the order should
+   contain at least two different types of products. This can be filtered out
+   by counting the number of product ids of the order items for an order.
+
+   ```python
+   from sqlalchemy import select, func, and_
+   from db import Session
+   from models import Order, OrderItem
+   from datetime import datetime, timedelta
+
+   session = Session()
+
+   order_date = datetime(2022, 12, 25)
+
+   q = (select(Order)
+        .where(and_(Order.timestamp >= order_date, Order.timestamp < order_date + timedelta(days=1)))
+        .join(Order.order_items)
+        .group_by(Order)
+        .having(func.count(OrderItem.product_id) >= 2))
+
+   session.scalars(q).all()
+
+   """
+   [Order(5159016ade8540f0afdddbb962b73fde), Order(52cfa054a296431789eb25e6e114d592),
+   Order(e8c7a680500948179cf4a0982f36270d), Order(fd9a765e9d2843108df21a88602875bc)]
+   """
+   ```
