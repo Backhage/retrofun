@@ -260,3 +260,36 @@ class ProductReview(Model):
    Order(e8c7a680500948179cf4a0982f36270d), Order(fd9a765e9d2843108df21a88602875bc)]
    """
    ```
+
+5. Customers with their first and last order date and time. Hint: the min() and
+   max() functions can help with this query.
+   Customers have Orders and Orders have timestamps. Try to select all Customer
+   and join with Order. Select the min and the max timetamp amongst the orders,
+   note that these can be the same if there is only one order made.
+   The Orders needs to be grouped by Customer so that the result returns one
+   entry per customer and not aggregates the min and max of all orders for all
+   customers.
+
+   ```python
+   from sqlalchemy import select, func
+   from db import Session
+   from models import Customer, Order
+
+   first_order_date = func.min(Order.timestamp).label(None)
+   latest_order_date = func.max(Order.timestamp).label(None)
+
+   session = Session()
+
+   q = (select(Customer, first_order_date, latest_order_date)
+        .join(Customer.orders)
+        .group_by(Customer))
+
+   session.execute(q).all()
+
+   """
+    [(Customer(000552c55d7b4f21ac76ac221e7e0416), "Wendy Chavez", datetime.datetime(2022, 9, 25, 9, 18, 57), datetime.datetime(2022, 11, 8, 16, 39, 8)),
+    (Customer(00150374ff4a43019c99ca59bae7eb84), "Jenna Avery", datetime.datetime(2022, 11, 11, 10, 11, 33), datetime.datetime(2022, 11, 11, 10, 11, 33)),
+    (Customer(001c76ec999e48dca40e1fc237617237), "Christopher Jennings", datetime.datetime(2022, 8, 4, 20, 23, 17), datetime.datetime(2022, 8, 27, 3, 57, 57))
+    ...]
+   """
+   ```
