@@ -293,3 +293,31 @@ class ProductReview(Model):
     ...]
    """
    ```
+
+6. Select all manufacturers and the sum of all order items that includes their
+   product. The result must be sorted by the sum in descending order and grouped
+   by the manufacturer.
+
+   ```python
+   from sqlalchemy import select, func
+   from db import Session
+   from models import Manufacturer, Product, OrderItem
+
+   session = Session()
+
+   order_total = func.sum(OrderItem.quantity * OrderItem.unit_price).label(None)
+   q = (select(Manufacturer, order_total)
+        .join(Manufacturer.products)
+        .join(Product.order_items)
+        .group_by(Manufacturer)
+        .order_by(order_total.desc())
+        .limit(5))
+
+   session.execute(q).all()
+
+   """
+   [(Manufacturer(14, "Commodore"), 281666.66), (Manufacturer(63, "Sinclair Research"), 122582.62),
+   (Manufacturer(5, "Apple Computer"), 34169.33), (Manufacturer(1, "Acorn Computers Ltd"), 14018.279999999999),
+   (Manufacturer(8, "Atari, Inc."), 3154.74)]
+   """
+   ```
