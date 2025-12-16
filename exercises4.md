@@ -321,3 +321,33 @@ class ProductReview(Model):
    (Manufacturer(8, "Atari, Inc."), 3154.74)]
    """
    ```
+
+7. Select Products and join on column reviews. Group by product, count the
+   number of reviews and avg their rating. Order by the review count in
+   descending order.
+
+   ```python
+   from sqlalchemy import select, func
+   from db import Session
+   from models import Product, ProductReview
+
+   session = Session()
+
+   review_count = func.count(ProductReview.product_id).label(None)
+   product_rating = func.avg(ProductReview.rating).label(None)
+ 
+   q = (select(Product, product_rating, review_count)
+        .join(Product.reviews)
+        .group_by(Product)
+        .order_by(review_count.desc()))
+
+   session.execute(q).all()
+
+   """
+   [(Product(41, "Commodore 64"), 3.7563805104408354, 431),
+   (Product(48, "Amiga"), 3.7493112947658402, 363),
+   (Product(127, "ZX Spectrum"), 4.0, 233)
+   ...
+   (Product(76, "IBM PS/1"), 4.0, 1), (Product(79, "Hobbit"), 5.0, 1)]
+   """
+   ```
