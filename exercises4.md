@@ -351,3 +351,29 @@ class ProductReview(Model):
    (Product(76, "IBM PS/1"), 4.0, 1), (Product(79, "Hobbit"), 5.0, 1)]
    """
    ```
+
+8. Join products and review table, filter on reviews where the comment is not None,
+   use func.avg to calculate the average rating.
+
+   ```python
+   from sqlalchemy import select, func
+   from db import Session
+   from models import Product, ProductReview
+
+   session = Session()
+
+   avg_rating = func.avg(ProductReview.rating).label(None)
+
+   q = (select(Product, avg_rating)
+        .join(Product.reviews)
+        .where(ProductReview.comment is not None)
+        .group_by(Product))
+
+   session.execute(q).all()
+
+   """
+   [(Product(74, "Honeywell 316"), 4.0), (Product(16, "Apple II"), 3.633093525179856),
+   ...
+   Product(33, "Falcon"), 2.5), (Product(6, "A7000"), 3.0)]
+   """
+   ```
