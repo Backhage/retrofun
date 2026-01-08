@@ -377,3 +377,33 @@ class ProductReview(Model):
    Product(33, "Falcon"), 2.5), (Product(6, "A7000"), 3.0)]
    """
    ```
+
+9. Average star rating for the Commodore 64 computer in each month of 2022.
+   Here the month and the year must be extracted from the ProductReview 
+   timestamp. This can be done using the func.extract function.
+
+   ```python
+   from sqlalchemy import select, func
+   from db import Session
+   from models import Product, ProductReview
+
+   session = Session()
+
+   year = func.extract("year", ProductReview.timestamp).label(None)
+   month = func.extract("month", ProductReview.timestamp).label(None)
+   rating_avg = func.avg(ProductReview.rating).label(None)
+
+   q = (select(month, rating_avg)
+        .join(ProductReview.product)
+        .where(Product.name == "Commodore 64")
+        .group_by(month)
+        .having(year == 2022))
+
+   session.execute(q).all()
+
+   """
+   [(1, 4.294117647058823), (2, 3.6551724137931036), (3, 3.4375),
+   ...
+   (10, 3.9375), (11, 3.8958333333333335), (12, 3.6)]
+   """
+   ```
