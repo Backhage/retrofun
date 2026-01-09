@@ -379,7 +379,7 @@ class ProductReview(Model):
    ```
 
 9. Average star rating for the Commodore 64 computer in each month of 2022.
-   Here the month and the year must be extracted from the ProductReview 
+   Here the month and the year must be extracted from the ProductReview
    timestamp. This can be done using the func.extract function.
 
    ```python
@@ -407,3 +407,34 @@ class ProductReview(Model):
    (10, 3.9375), (11, 3.8958333333333335), (12, 3.6)]
    """
    ```
+
+10. Customers with the minimum and maximum star rating they gave to a product,
+    sorted alphabetically by customer name.
+
+    ```python
+    from sqlalchemy import select, func
+    from db import Session
+    from models import Customer, ProductReview
+
+    session = Session()
+
+    min_rating = func.min(ProductReview.rating).label(None)
+    max_rating = func.max(ProductReview.rating).label(None)
+
+    q = (select(Customer, min_rating, max_rating)
+         .join(Customer.product_reviews)
+         .group_by(Customer)
+         .order_by(Customer.name))
+
+    session.execute(q).all()
+
+    """
+    [(Customer(a90cd370fb904b04880b7faea40c86a1), "Aaron Mahoney", 5, 5),
+    (Customer(53ddf97414f04c749a35ff8a69da3873), "Aaron Osborne", 5, 5),
+    (Customer(1eebfc53079143f4b6e70910132875a8), "Aaron Quinn", 3, 5),
+    ...
+    (Customer(e597ffd8f3364f90be9ef3f006b714eb), "Zachary Dennis", 2, 5),
+    (Customer(54a06ec25f7746e68475ceed07339cd6), "Zachary Knight", 1, 4),
+    (Customer(2935d1fd9ccd4242afcb9fc3efa00d2b), "Zachary Mccoy", 3, 5)]
+    """
+    ```
