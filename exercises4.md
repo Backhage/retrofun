@@ -14,8 +14,8 @@ Start a Python session and write queries that return the following information:
    max() functions can help with this query.
 6. The top 5 manufacturers that had the most sale amounts, sorted by those amounts
    in descending order.
-7. Products, their average star rating and their review count, sorted by review count
-   in descending order.
+7. Products, their average star rating and their review count, sorted by review
+   count in descending order.
 8. Products and their average star rating, but only counting reviews that include
    a written comment.
 9. Average star rating for the Commodore 64 computer in each month of 2022.
@@ -436,5 +436,32 @@ class ProductReview(Model):
     (Customer(e597ffd8f3364f90be9ef3f006b714eb), "Zachary Dennis", 2, 5),
     (Customer(54a06ec25f7746e68475ceed07339cd6), "Zachary Knight", 1, 4),
     (Customer(2935d1fd9ccd4242afcb9fc3efa00d2b), "Zachary Mccoy", 3, 5)]
+    """
+    ```
+
+11. Manufacturers with their average star rating, sorted from highest to lowest
+    rating.
+
+    ```python
+    from sqlalchemy import select, func
+    from db import Session
+    from models import Manufacturer, Product, ProductReview
+
+    session = Session()
+
+    avg_rating = func.avg(ProductReview.rating).label(None)
+
+    q = (select(Manufacturer, avg_rating)
+         .join(Manufacturer.products)
+         .join(Product.reviews)
+         .group_by(Manufacturer)
+         .order_by(avg_rating.desc()))
+
+    session.execute(q).all()
+
+    """
+    [(Manufacturer(6, "Apricot Computers"), 5.0), (Manufacturer(12, "Camputers"), 5.0),
+    ...
+    (Manufacturer(43, "Matra"), 1.0), (Manufacturer(76, "GEM"), 1.0)]
     """
     ```
