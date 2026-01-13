@@ -465,3 +465,30 @@ class ProductReview(Model):
     (Manufacturer(43, "Matra"), 1.0), (Manufacturer(76, "GEM"), 1.0)]
     """
     ```
+
+12. Product countries with their average star rating, sorted from highest to lowest
+    rating.
+
+    ```python
+    from sqlalchemy import select, func
+    from db import Session
+    from models import Country, Product, ProductReview
+
+    session = Session()
+
+    avg_rating = func.avg(ProductReview.rating).label(None)
+
+    q = (select(Country, avg_rating)
+        .join(Country.products)
+        .join(Product.reviews)
+        .group_by(Country)
+        .order_by(avg_rating.desc())
+
+    session.execute(q).all()
+
+    """
+    [(Country(24, "Hungary"), 5.0), (Country(8, "Czechoslovakia"), 4.83), (Country(12, "Brazil"), 4.8),
+    ...
+    Country(15, "France"), 2.0), (Country(4, "Netherlands"), 1.33), (Country(7, "Belgium"), 1.0)]
+    """
+    ```
