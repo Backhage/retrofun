@@ -20,7 +20,8 @@ def main():
 
                 for row in reader:
                     c = session.scalar(
-                        select(Customer).where(Customer.name == row["customer"])
+                        select(Customer).where(
+                            Customer.name == row["customer"])
                     )
                     p = session.scalar(
                         select(Product).where(Product.name == row["product"])

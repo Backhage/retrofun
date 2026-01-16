@@ -25,7 +25,9 @@ def main():
                 for row in reader:
                     if row["name"] not in all_customers:
                         c = Customer(
-                            name=row["name"], address=row["address"], phone=row["phone"]
+                            name=row["name"],
+                            address=row["address"],
+                            phone=row["phone"]
                         )
                         all_customers[row["name"]] = c
                     o = Order(
@@ -40,7 +42,8 @@ def main():
                     product = all_products.get(row["product1"])
                     if product is None:
                         product = session.scalar(
-                            select(Product).where(Product.name == row["product1"])
+                            select(Product).where(
+                                Product.name == row["product1"])
                         )
                         all_products[row["product1"]] = product
                     o.order_items.append(
@@ -55,7 +58,8 @@ def main():
                         product = all_products.get(row["product2"])
                         if product is None:
                             product = session.scalar(
-                                select(Product).where(Product.name == row["product2"])
+                                select(Product).where(
+                                    Product.name == row["product2"])
                             )
                             all_products[row["product2"]] = product
                         o.order_items.append(
@@ -70,7 +74,8 @@ def main():
                         product = all_products.get(row["product3"])
                         if product is None:
                             product = session.scalar(
-                                select(Product).where(Product.name == row["product3"])
+                                select(Product).where(
+                                    Product.name == row["product3"])
                             )
                             all_products[row["product3"]] = product
                         o.order_items.append(
