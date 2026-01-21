@@ -203,6 +203,17 @@ class BlogArticle(Model):
     __tablename__ = "blog_articles"
 
     id: Mapped[int] = mapped_column(primary_key=True)
+    # This may be a translation of another blog article, so this foreign key
+    # refers to the same table, that is to blog_articles.
+    translation_of_id: Mapped[int | None] = mapped_column(
+        ForeignKey("blog_articles.id"), index=True)
+    # For SQLAlchemy to be able to figure out which of the relationsships is
+    # the "one" side and which is the "many" side the remote_side argument is
+    # added, which references the "one" side.
+    translation_of: Mapped[Optional["BlogArticle"]] = relationship(
+        remote_side=id, back_populates="translations")
+    translations: Mapped[list["BlogArticle"]] = relationship(
+        back_populates="translation_of")
     title: Mapped[str] = mapped_column(String(128), index=True)
     author_id: Mapped[int] = mapped_column(
         ForeignKey("blog_authors.id"), index=True)
@@ -217,6 +228,12 @@ class BlogArticle(Model):
         back_populates="blog_articles")
 
     views: WriteOnlyMapped["BlogView"] = relationship(back_populates="article")
+
+    language_id: Mapped[int | None] = mapped_column(
+        ForeignKey("languages.id"), index=True)
+
+    language: Mapped[Optional["Language"]] = relationship(
+        back_populates="blog_articles")
 
     def __repr__(self):
         return f'BlogArticle({self.id}, "{self.title}")'
@@ -275,3 +292,16 @@ class BlogView(Model):
 
     article: Mapped["BlogArticle"] = relationship(back_populates="views")
     session: Mapped["BlogSession"] = relationship(back_populates="views")
+
+
+class Language(Model):
+    __tablename__ = "languages"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str] = mapped_column(String(32), index=True, unique=True)
+
+    blog_articles: WriteOnlyMapped["BlogArticle"] = relationship(
+        back_populates="language")
+
+    def __repr__(self):
+        return f'Language({self.id}, "{self.name}")'
