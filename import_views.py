@@ -20,37 +20,40 @@ def main():
         all_blog_users = {}
         all_blog_sessions = {}
 
-        with open('views.csv') as f:
+        with open("views.csv") as f:
             reader = csv.DictReader(f)
 
             i = 0
             for row in reader:
-                user = all_blog_users.get(row['user'])
+                user = all_blog_users.get(row["user"])
                 if user is None:
                     customer = None
-                    if row['customer']:
-                        customer = all_customers.get(row['customer'])
+                    if row["customer"]:
+                        customer = all_customers.get(row["customer"])
                         if customer is None:
-                            customer = session.scalar(select(Customer).where(
-                                Customer.name == row['customer']))
-                        all_customers[customer.name] = customer
+                            customer = session.scalar(
+                                select(Customer).where(Customer.name == row["customer"])
+                            )
+                        if customer is not None:
+                            all_customers[customer.name] = customer
 
-                    user_id = UUID(row['user'])
+                    user_id = UUID(row["user"])
                     user = BlogUser(id=user_id, customer=customer)
                     session.add(user)
-                    all_blog_users[row['user']] = user
+                    all_blog_users[row["user"]] = user
 
-                blog_session = all_blog_sessions.get(row['session'])
+                blog_session = all_blog_sessions.get(row["session"])
                 if blog_session is None:
-                    session_id = UUID(row['session'])
+                    session_id = UUID(row["session"])
                     blog_session = BlogSession(id=session_id, user=user)
                     session.add(blog_session)
-                    all_blog_sessions[row['session']] = blog_session
+                    all_blog_sessions[row["session"]] = blog_session
 
-                article = all_articles.get(row['title'])
+                article = all_articles.get(row["title"])
                 if article is None:
-                    article = session.scalar(select(BlogArticle).where(
-                        BlogArticle.title == row['title']))
+                    article = session.scalar(
+                        select(BlogArticle).where(BlogArticle.title == row["title"])
+                    )
                 if article is None:
                     print(f"Failed to find title: {row['title']}")
                     sys.exit(1)
@@ -59,8 +62,7 @@ def main():
                 view = BlogView(
                     article=article,
                     session=blog_session,
-                    timestamp=datetime.strptime(
-                        row['timestamp'], '%Y-%m-%d %H:%M:%S'),
+                    timestamp=datetime.strptime(row["timestamp"], "%Y-%m-%d %H:%M:%S"),
                 )
                 session.add(view)
 
@@ -72,5 +74,5 @@ def main():
             session.commit()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
