@@ -281,3 +281,35 @@ class Language(Model):
     def __repr__(self):
         return f'Language({self.id}, "{self.name}")'
 ```
+
+1. Blog posts that have received more than 40 page views in March 2020.
+
+```python
+from datetime import datetime
+from sqlalchemy import select, func
+from db import Session
+from models import BlogArticle, BlogView
+
+view_count = func.count(BlogView.id).label(None)
+
+session = Session()
+
+q = (select(BlogArticle, view_count)
+     .join(BlogArticle.views)
+     .where(BlogView.timestamp.between(datetime(2020, 3, 1), datetime(2020, 4, 1)))
+     .group_by(BlogArticle)
+     .having(view_count > 40)
+     .order_by(view_count.desc()))
+
+session.execute(q).all()
+
+"""
+[(BlogArticle(143, "Evening however issue"), 52),
+ (BlogArticle(75, "These data raise support interview"), 46),
+ (BlogArticle(183, "Man southern senior soon"), 44),
+ (BlogArticle(150, "Court event citizen see feel side picture"), 43),
+ (BlogArticle(176, "On amount with building"), 43),
+ (BlogArticle(172, "Artist cultural above director country contain happen"), 42),
+ (BlogArticle(181, "Relate material election"), 42)]
+"""
+```
