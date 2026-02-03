@@ -284,32 +284,59 @@ class Language(Model):
 
 1. Blog posts that have received more than 40 page views in March 2020.
 
-```python
-from datetime import datetime
-from sqlalchemy import select, func
-from db import Session
-from models import BlogArticle, BlogView
+    ```python
+    from datetime import datetime
+    from sqlalchemy import select, func
+    from db import session
+    from models import blogarticle, blogview
 
-view_count = func.count(BlogView.id).label(None)
+    view_count = func.count(blogview.id).label(none)
 
-session = Session()
+    session = session()
 
-q = (select(BlogArticle, view_count)
-     .join(BlogArticle.views)
-     .where(BlogView.timestamp.between(datetime(2020, 3, 1), datetime(2020, 4, 1)))
-     .group_by(BlogArticle)
-     .having(view_count > 40)
-     .order_by(view_count.desc()))
+    q = (select(blogarticle, view_count)
+        .join(blogarticle.views)
+        .where(blogview.timestamp.between(datetime(2020, 3, 1), datetime(2020, 4, 1)))
+        .group_by(blogarticle)
+        .having(view_count > 40)
+        .order_by(view_count.desc()))
 
-session.execute(q).all()
+    session.execute(q).all()
 
-"""
-[(BlogArticle(143, "Evening however issue"), 52),
- (BlogArticle(75, "These data raise support interview"), 46),
- (BlogArticle(183, "Man southern senior soon"), 44),
- (BlogArticle(150, "Court event citizen see feel side picture"), 43),
- (BlogArticle(176, "On amount with building"), 43),
- (BlogArticle(172, "Artist cultural above director country contain happen"), 42),
- (BlogArticle(181, "Relate material election"), 42)]
-"""
-```
+    """
+    [(blogarticle(143, "evening however issue"), 52),
+    (blogarticle(75, "these data raise support interview"), 46),
+    (blogarticle(183, "man southern senior soon"), 44),
+    (blogarticle(150, "court event citizen see feel side picture"), 43),
+    (blogarticle(176, "on amount with building"), 43),
+    (blogarticle(172, "artist cultural above director country contain happen"), 42),
+    (blogarticle(181, "relate material election"), 42)]
+    """
+    ```
+
+2. Blog article with the largest number of translations. In case of a tie,
+   the article that comes first alphabetically should be returned.
+
+    ```python
+    from sqlalchemy import select, func, aliased
+    from sqlalchemy.orm import aliased
+    from db import Session
+    from models import BlogArticle
+
+    translations = func.count(BlogArticle.id).label(None)
+    TranslatedBlogArticle = aliased(BlogArticle)
+
+    session = Session()
+
+    q = (select(BlogArticle, translations)
+        .join(TranslatedBlogArticle.translation_of)
+        .group_by(BlogArticle)
+        .order_by(translations.desc(), BlogArticle.title)
+        .limit(1))
+
+    session.execute(q).all()
+
+    """
+    [(BlogArticle(63, "Business seven ability cup church similar itself"), 3)]
+    """
+    ```
