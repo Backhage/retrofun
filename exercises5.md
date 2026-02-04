@@ -340,3 +340,31 @@ class Language(Model):
     [(BlogArticle(63, "Business seven ability cup church similar itself"), 3)]
     """
     ```
+
+3. Page views in March 2022, categorized by language.
+
+    ```python
+    from datetime import datetime
+    from sqlalchemy import select, func
+    from db import Session
+    from models import BlogArticle, BlogView, Language
+
+    view_count = func.count(BlogView.id).label(None)
+
+    session = Session()
+
+    q = (select(view_count, Language)
+        .join(Language.blog_articles)
+        .join(BlogArticle.views)
+        .where(BlogView.timestamp.between(datetime(2022, 3, 1), datetime(2022, 4, 1)))
+        .group_by(Language)
+        .order_by(view_count.desc()))
+
+    session.execute(q).all()
+
+    """
+    [(2155, Language(1, "English")), (512, Language(3, "French")),
+    (417, Language(2, "German")), (404, Language(6, "Portuguese")),
+    (305, Language(5, "Spanish")), (283, Language(4, "Italian"))]
+    """
+    ```
