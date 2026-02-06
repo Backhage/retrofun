@@ -368,3 +368,31 @@ class Language(Model):
     (305, Language(5, "Spanish")), (283, Language(4, "Italian"))]
     """
     ```
+
+4. Page views by article, only considering content in German.
+
+```python
+from sqlalchemy import select, func
+from db import Session
+from models import BlogArticle, BlogView, Language
+
+view_count = func.count(BlogView.id).label(None)
+
+session = Session()
+
+q = (select(view_count, BlogArticle)
+     .join(BlogArticle.language)
+     .join(BlogArticle.views)
+     .where(Language.name == "German")
+     .group_by(BlogArticle)
+     .order_by(view_count.desc()))
+
+session.execute(q).all()
+
+"""
+[(1342, BlogArticle(172, "Artist cultural above director country contain happen")),
+ (1206, BlogArticle(34, "Mission room event set our student")),
+ ...
+ (28, BlogArticle(2, "Recognize economy campaign administration floor themselves run"))]
+"""
+```
