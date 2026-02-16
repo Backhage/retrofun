@@ -396,3 +396,29 @@ session.execute(q).all()
  (28, BlogArticle(2, "Recognize economy campaign administration floor themselves run"))]
 """
 ```
+
+1. Monthly page views between January and December 2022.
+
+```python
+from datetime import datetime
+from sqlalchemy import select, func
+from db import Session
+from models import BlogView
+
+view_count = func.count(BlogView.id).label(None)
+month = func.extract('month', BlogView.timestamp).label(None)
+
+session = Session()
+
+q = (select(month, view_count)
+     .where(BlogView.timestamp.between(datetime(2022,1,1), datetime(2023,1,1)))
+     .group_by(month)
+     .order_by(month))
+
+session.execute(q).all()
+
+"""
+[(1, 3649), (2, 3287), (3, 4076), (4, 3820), (5, 4034), (6, 3659), (7, 3900),
+(8, 3705), (9, 3639), (10, 4066), (11, 4034), (12, 3925)]
+"""
+```
