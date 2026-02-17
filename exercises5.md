@@ -371,54 +371,83 @@ class Language(Model):
 
 4. Page views by article, only considering content in German.
 
-```python
-from sqlalchemy import select, func
-from db import Session
-from models import BlogArticle, BlogView, Language
+    ```python
+    from sqlalchemy import select, func
+    from db import Session
+    from models import BlogArticle, BlogView, Language
 
-view_count = func.count(BlogView.id).label(None)
+    view_count = func.count(BlogView.id).label(None)
 
-session = Session()
+    session = Session()
 
-q = (select(view_count, BlogArticle)
-     .join(BlogArticle.language)
-     .join(BlogArticle.views)
-     .where(Language.name == "German")
-     .group_by(BlogArticle)
-     .order_by(view_count.desc()))
+    q = (select(view_count, BlogArticle)
+        .join(BlogArticle.language)
+        .join(BlogArticle.views)
+        .where(Language.name == "German")
+        .group_by(BlogArticle)
+        .order_by(view_count.desc()))
 
-session.execute(q).all()
+    session.execute(q).all()
 
-"""
-[(1342, BlogArticle(172, "Artist cultural above director country contain happen")),
- (1206, BlogArticle(34, "Mission room event set our student")),
- ...
- (28, BlogArticle(2, "Recognize economy campaign administration floor themselves run"))]
-"""
-```
+    """
+    [(1342, BlogArticle(172, "Artist cultural above director country contain happen")),
+    (1206, BlogArticle(34, "Mission room event set our student")),
+    ...
+    (28, BlogArticle(2, "Recognize economy campaign administration floor themselves run"))]
+    """
+    ```
 
-1. Monthly page views between January and December 2022.
+5. Monthly page views between January and December 2022.
 
-```python
-from datetime import datetime
-from sqlalchemy import select, func
-from db import Session
-from models import BlogView
+    ```python
+    from datetime import datetime
+    from sqlalchemy import select, func
+    from db import Session
+    from models import BlogView
 
-view_count = func.count(BlogView.id).label(None)
-month = func.extract('month', BlogView.timestamp).label(None)
+    view_count = func.count(BlogView.id).label(None)
+    month = func.extract('month', BlogView.timestamp).label(None)
 
-session = Session()
+    session = Session()
 
-q = (select(month, view_count)
-     .where(BlogView.timestamp.between(datetime(2022,1,1), datetime(2023,1,1)))
-     .group_by(month)
-     .order_by(month))
+    q = (select(month, view_count)
+        .where(BlogView.timestamp.between(datetime(2022,1,1), datetime(2023,1,1)))
+        .group_by(month)
+        .order_by(month))
 
-session.execute(q).all()
+    session.execute(q).all()
 
-"""
-[(1, 3649), (2, 3287), (3, 4076), (4, 3820), (5, 4034), (6, 3659), (7, 3900),
-(8, 3705), (9, 3639), (10, 4066), (11, 4034), (12, 3925)]
-"""
-```
+    """
+    [(1, 3649), (2, 3287), (3, 4076), (4, 3820), (5, 4034), (6, 3659), (7, 3900),
+    (8, 3705), (9, 3639), (10, 4066), (11, 4034), (12, 3925)]
+    """
+    ```
+
+6. Daily page views in February 2022.
+
+    ```python
+    from datetime import datetime
+    from sqlalchemy import select, func
+    from db import Session
+    from models import BlogView
+
+    view_count = func.count(BlogView.id).label(None)
+    day = func.extract('day', BlogView.timestamp).label(None)
+
+    session = Session()
+
+    q = (select(day, view_count)
+        .where(BlogView.timestamp.between(datetime(2022, 2, 1), datetime(2022, 3, 1)))
+        .group_by(day)
+        .order_by(day))
+
+    session.execute(q).all()
+
+    """
+    [(1, 135), (2, 129), (3, 110), (4, 127), (5, 112), (6, 95), (7, 98), (8, 126),
+    (9, 173), (10, 94), (11, 159), (12, 98), (13, 98), (14, 128), (15, 73), (16, 100),
+    (17, 112), (18, 114), (19, 130), (20, 126), (21, 144), (22, 79), (23, 121),
+    (24, 163), (25, 115), (26, 107), (27, 83), (28, 138)]
+    """
+
+    ```
